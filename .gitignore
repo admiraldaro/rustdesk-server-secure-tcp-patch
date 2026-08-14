@@ -1,0 +1,25 @@
+/work/
+/dist/
+/target/
+/release-assets/
+
+*.log
+*.tmp
+*.bak
+*.swp
+*.tar.gz
+*.zip
+
+# Never commit locally built RustDesk Server binaries.
+hbbs
+hbbr
+*.exe
+
+# Keep private deployment material out of this repository.
+*id_ed25519*
+*.sqlite
+*.sqlite3
+*.db
+*.pem
+*.key
+*.crt

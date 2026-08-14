@@ -1,0 +1,26 @@
+diff --git a/build.rs b/build.rs
+index 46f0cc2..31524eb 100644
+--- a/build.rs
++++ b/build.rs
+@@ -16,7 +16,21 @@ static VERSION: &str = "1.0.18";
+ fn main() {
+     println!("cargo:rerun-if-env-changed=SODIUM_LIB_DIR");
+     println!("cargo:rerun-if-env-changed=SODIUM_SHARED");
+     println!("cargo:rerun-if-env-changed=SODIUM_USE_PKG_CONFIG");
++    if let Ok(target) = env::var("TARGET") {
++        let target_key = format!(
++            "SODIUM_LIB_DIR_{}",
++            target.replace('-', "_").to_ascii_uppercase()
++        );
++        println!("cargo:rerun-if-env-changed={}", target_key);
++        if env::var("SODIUM_LIB_DIR").is_err() {
++            if let Ok(lib_dir) = env::var(target_key) {
++                env::set_var("SODIUM_LIB_DIR", lib_dir);
++                find_libsodium_env();
++                return;
++            }
++        }
++    }
+ 
+     if cfg!(not(windows)) {
+         println!("cargo:rerun-if-env-changed=SODIUM_DISABLE_PIE");

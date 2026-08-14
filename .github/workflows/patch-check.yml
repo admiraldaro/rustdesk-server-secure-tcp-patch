@@ -1,0 +1,28 @@
+name: Patch Check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  patch-applies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out patch repository
+        uses: actions/checkout@v4
+
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y git python3
+
+      - name: Fetch pinned upstream source
+        run: bash scripts/fetch-source.sh
+
+      - name: Apply runtime patch
+        run: bash scripts/apply-patch.sh
+
+      - name: Verify expected secure TCP symbols
+        run: |
+          set -euo pipefail
+          grep -n "key_exchange_phase1" work/source/src/rendezvous_server.rs
+          grep -n "key_exchange_phase2" work/source/src/rendezvous_server.rs
+          grep -n "Ignoring KeyExchange on WebSocket" work/source/src/rendezvous_server.rs
