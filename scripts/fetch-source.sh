@@ -7,9 +7,13 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 build_root="$(cd "$script_dir/.." && pwd)"
 source_dir="${SOURCE_DIR:-$build_root/work/source}"
 expected_common="83419b6549636ee39dacef7776c473f5802e08d6"
-expected_lock_hash="f5e17e33f48875a3a63c14002a6d94278ac6a02381c2e4c1934900823bc31528"
+expected_lock_blob="f018be6cc3c34fb13955efb4acfb7fba5d59efaa"
 
-source_dir="$(python3 -c 'import os,sys; print(os.path.abspath(sys.argv[1]))' "$source_dir")"
+source_parent="$(dirname "$source_dir")"
+source_name="$(basename "$source_dir")"
+mkdir -p "$source_parent"
+source_parent="$(cd "$source_parent" && pwd -P)"
+source_dir="$source_parent/$source_name"
 case "$source_dir/" in
   "$build_root"/work/*) ;;
   *) echo "Refusing to operate outside $build_root/work: $source_dir" >&2; exit 1 ;;
@@ -28,7 +32,7 @@ test "$actual" = "$base_commit"
 submodule="$(git -C "$source_dir" ls-files -s libs/hbb_common | awk '{print $2}')"
 test "$submodule" = "$expected_common"
 
-lock_hash="$(sha256sum "$source_dir/Cargo.lock" | awk '{print $1}')"
-test "$lock_hash" = "$expected_lock_hash"
+lock_blob="$(git -C "$source_dir" rev-parse HEAD:Cargo.lock)"
+test "$lock_blob" = "$expected_lock_blob"
 
 echo "Fetched pinned RustDesk Server source at $base_commit"

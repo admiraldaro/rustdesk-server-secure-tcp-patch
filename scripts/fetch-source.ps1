@@ -14,7 +14,7 @@ if (-not $SourceDir) {
     $SourceDir = Join-Path $BuildRoot 'work\source'
 }
 $ExpectedCommon = '83419b6549636ee39dacef7776c473f5802e08d6'
-$ExpectedLockHash = 'F5E17E33F48875A3A63C14002A6D94278AC6A02381C2E4C1934900823BC31528'
+$ExpectedLockBlob = 'f018be6cc3c34fb13955efb4acfb7fba5d59efaa'
 
 function Resolve-UnderBuildRoot {
     param([string]$Path)
@@ -57,9 +57,9 @@ if ($submodule -ne $ExpectedCommon) {
     throw "Unexpected hbb_common commit: $submodule"
 }
 
-$lockHash = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $SourceDir 'Cargo.lock')).Hash
-if ($lockHash -ne $ExpectedLockHash) {
-    throw "Unexpected Cargo.lock SHA-256: $lockHash"
+$lockBlob = (git -C $SourceDir rev-parse 'HEAD:Cargo.lock').Trim()
+if ($lockBlob -ne $ExpectedLockBlob) {
+    throw "Unexpected Cargo.lock Git blob: $lockBlob"
 }
 
 Write-Host "Fetched pinned RustDesk Server source at $BaseCommit"
